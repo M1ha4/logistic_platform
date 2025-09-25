@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Заявки</h2>
+<ul>
+  {% for order in orders %}
+    <li>{{ order.from_address }} → {{ order.to_address }} | {{ order.status }}</li>
+  {% endfor %}
+</ul>
+
+<h3>Создать заявку</h3>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Создать</button>
+</form>
+{% endblock %}

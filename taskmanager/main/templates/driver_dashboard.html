@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Мои заявки</h2>
+<ul>
+  {% for order in orders %}
+    <li>{{ order.from_address }} → {{ order.to_address }} | {{ order.status }}</li>
+  {% endfor %}
+</ul>
+
+<h3>Загрузить документ</h3>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Загрузить</button>
+</form>
+{% endblock %}

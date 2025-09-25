@@ -1,3 +1,44 @@
+from django.contrib.auth.models import User
 from django.db import models
 
-# Create your models here.
+
+class DriverProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=20, blank=True)
+    car_number = models.CharField(max_length=20, blank=True)
+
+    def __str__(self):
+        return self.user.username
+
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ("new", "Новая"),
+        ("assigned", "Назначена"),
+        ("in_progress", "В пути"),
+        ("completed", "Завершена"),
+    ]
+
+    manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="created_orders")
+    driver = models.ForeignKey(DriverProfile, on_delete=models.SET_NULL, null=True, blank=True)
+    from_address = models.CharField(max_length=255)
+    to_address = models.CharField(max_length=255)
+    cargo = models.TextField()
+    date = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
+
+    def __str__(self):
+        return f"Заказ {self.id} ({self.status})"
+
+
+class DriverLocation(models.Model):
+    driver = models.ForeignKey(DriverProfile, on_delete=models.CASCADE)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+
+class Document(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="documents")
+    image = models.ImageField(upload_to="documents/")
+    uploaded_at = models.DateTimeField(auto_now_add=True)

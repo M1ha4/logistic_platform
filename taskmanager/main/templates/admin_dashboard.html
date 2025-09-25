@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Все заявки</h2>
+<ul>
+  {% for order in orders %}
+    <li>{{ order.from_address }} → {{ order.to_address }} | {{ order.driver }} | {{ order.status }}</li>
+  {% endfor %}
+</ul>
+
+<h2>Геолокации</h2>
+<ul>
+  {% for loc in locations %}
+    <li>{{ loc.driver }}: {{ loc.latitude }}, {{ loc.longitude }} ({{ loc.timestamp }})</li>
+  {% endfor %}
+</ul>
+{% endblock %}
