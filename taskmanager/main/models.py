@@ -47,7 +47,7 @@ class DriverLocation(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
 
-class Document(models.Model):
+class OrderDocument(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="documents")
-    image = models.ImageField(upload_to="documents/")
+    file = models.FileField(upload_to="documents/")
     uploaded_at = models.DateTimeField(auto_now_add=True)

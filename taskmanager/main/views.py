@@ -10,6 +10,9 @@ import json
 
 from .models import DriverProfile, DriverLocation
 
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+
 
 @login_required
 def manager_dashboard(request):
@@ -29,19 +32,30 @@ def manager_dashboard(request):
 
 @login_required
 def driver_dashboard(request):
-    driver = get_object_or_404(DriverProfile, user=request.user)
-    orders = Order.objects.filter(driver=driver)
-    if request.method == "POST":
-        form = DocumentForm(request.POST, request.FILES)
-        if form.is_valid():
-            doc = form.save(commit=False)
-            doc.order = orders.first()  # упрощенно: прикрепляем к первому заказу
-            doc.save()
-            return redirect("driver_dashboard")
-    else:
-        form = DocumentForm()
-    return render(request, "driver_dashboard.html", {"orders": orders, "form": form})
+    driver_profile = getattr(request.user, "driverprofile", None)
+    if not driver_profile:
+        return render(request, "driver_dashboard.html", {"no_driver": True})
 
+    active_order = Order.objects.filter(driver=driver_profile, status="in_progress").first()
+
+    # обработка кнопок
+    if request.method == "POST" and active_order:
+        if "share_location" in request.POST:
+            lat = request.POST.get("lat")
+            lng = request.POST.get("lng")
+            if lat and lng:
+                DriverLocation.objects.create(driver=driver_profile, latitude=lat, longitude=lng)
+        elif "upload_doc" in request.POST and request.FILES.get("document"):
+            doc = request.FILES["document"]
+            active_order.documents.create(file=doc, uploaded_at=timezone.now())
+        elif "finish_order" in request.POST:
+            active_order.status = "done"
+            active_order.save()
+            return redirect("driver_dashboard")
+
+    return render(request, "driver_dashboard.html", {
+        "active_order": active_order,
+    })
 
 #@login_required
 def admin_dashboard(request):

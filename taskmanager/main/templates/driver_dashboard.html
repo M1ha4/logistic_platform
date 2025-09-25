@@ -1,44 +1,51 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h2>Мои заявки</h2>
-<ul>
-  {% for order in orders %}
-    <li>{{ order.from_address }} → {{ order.to_address }} | {{ order.status }}</li>
-  {% endfor %}
-</ul>
+<h2>Личный кабинет водителя</h2>
 
-<h3>Загрузить документ</h3>
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Загрузить</button>
-</form>
+{% if no_driver %}
+<p>У вас нет профиля водителя. Обратитесь к администратору.</p>
+{% else %}
+  {% if not active_order %}
+    <p><b>Нет заказов</b></p>
+  {% else %}
+    <h3>Заказ #{{ active_order.id }}</h3>
+    <p>Откуда: {{ active_order.from_address }} → Куда: {{ active_order.to_address }}</p>
 
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="lat" id="lat">
+      <input type="hidden" name="lng" id="lng">
+      <button type="submit" name="share_location">📍 Поделиться геопозицией</button>
+    </form>
 
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="file" name="document" required>
+      <button type="submit" name="upload_doc">📎 Загрузить документ</button>
+    </form>
+
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" name="finish_order" onclick="return confirm('Завершить заказ?');">✅ Завершить заказ</button>
+    </form>
+  {% endif %}
+{% endif %}
 
 <script>
-function startTracking() {
+// Функция для получения координат браузером
+document.querySelector("button[name='share_location']")?.addEventListener("click", function(e){
+    e.preventDefault();
     if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(function(position) {
-            fetch("/api/update-location/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": "{{ csrf_token }}"
-                },
-                body: JSON.stringify({
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                })
-            }).then(r => console.log("Location sent"));
+        navigator.geolocation.getCurrentPosition(function(pos){
+            document.getElementById("lat").value = pos.coords.latitude;
+            document.getElementById("lng").value = pos.coords.longitude;
+            e.target.closest("form").submit();
+        }, function(err){
+            alert("Не удалось получить геопозицию: " + err.message);
         });
     } else {
-        alert("Геолокация не поддерживается");
+        alert("Ваш браузер не поддерживает геолокацию.");
     }
-}
+});
 </script>
-
-<button onclick="startTracking()">🚚 Начать отслеживание</button>
-
 {% endblock %}

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Order, Document
+from .models import Order, OrderDocument
 
 
 class OrderForm(forms.ModelForm):
@@ -10,5 +10,5 @@ class OrderForm(forms.ModelForm):
 
 class DocumentForm(forms.ModelForm):
     class Meta:
-        model = Document
-        fields = ["image"]
+        model = OrderDocument
+        fields = ["file"]
