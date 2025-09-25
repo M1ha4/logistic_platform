@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Маршрут заказа #{{ order.id }}</h2>
+<p>Откуда: {{ order.from_address }} → Куда: {{ order.to_address }}</p>
+
+<div id="map" style="height: 500px;"></div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+// читаем JSON (escapejs защищает от встраиваемых кавычек)
+const points = JSON.parse('{{ points_json|escapejs }}');
+console.log('points from server:', points);
+
+document.addEventListener("DOMContentLoaded", function () {
+    var map = L.map('map').setView([55.75, 37.61], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19}).addTo(map);
+
+    const coords = [];
+
+    points.forEach(p => {
+        const lat = parseFloat(p.lat);
+        const lng = parseFloat(p.lng);
+        if (isNaN(lat) || isNaN(lng)) {
+            console.warn('Пропускаем некорректную точку', p);
+            return;
+        }
+        const marker = L.marker([lat, lng]).addTo(map).bindPopup(p.label || '');
+        coords.push([lat, lng]);
+    });
+
+    if (coords.length > 0) {
+        const bounds = L.latLngBounds(coords);
+        map.fitBounds(bounds, {padding: [50, 50]});
+    } else {
+        console.warn('Нет валидных точек для отображения на карте');
+    }
+
+    if (coords.length >= 2) {
+        L.polyline(coords).addTo(map);
+    }
+});
+</script>
+{% endblock %}

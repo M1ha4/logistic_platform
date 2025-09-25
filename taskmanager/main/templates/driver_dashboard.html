@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% block content %}
 <h2>Мои заявки</h2>
 <ul>
@@ -13,4 +14,31 @@
   {{ form.as_p }}
   <button type="submit">Загрузить</button>
 </form>
+
+
+
+<script>
+function startTracking() {
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(function(position) {
+            fetch("/api/update-location/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                })
+            }).then(r => console.log("Location sent"));
+        });
+    } else {
+        alert("Геолокация не поддерживается");
+    }
+}
+</script>
+
+<button onclick="startTracking()">🚚 Начать отслеживание</button>
+
 {% endblock %}

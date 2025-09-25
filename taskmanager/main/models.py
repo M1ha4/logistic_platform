@@ -1,14 +1,18 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-
 class DriverProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=20, blank=True)
     car_number = models.CharField(max_length=20, blank=True)
 
+    @property
+    def is_busy(self):
+        return self.order_set.filter(status="in_progress").exists()
+
     def __str__(self):
         return self.user.username
+
 
 
 class Order(models.Model):
@@ -26,6 +30,11 @@ class Order(models.Model):
     cargo = models.TextField()
     date = models.DateTimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
+
+    from_lat = models.FloatField(null=True, blank=True)
+    from_lng = models.FloatField(null=True, blank=True)
+    to_lat = models.FloatField(null=True, blank=True)
+    to_lng = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return f"Заказ {self.id} ({self.status})"

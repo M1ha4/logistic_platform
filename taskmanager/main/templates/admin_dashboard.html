@@ -1,16 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Все заявки</h2>
+<h2>Водители</h2>
 <ul>
-  {% for order in orders %}
-    <li>{{ order.from_address }} → {{ order.to_address }} | {{ order.driver }} | {{ order.status }}</li>
+  {% for driver in drivers %}
+    <li>
+      {{ driver.user.username }} —
+      {% if driver.is_busy %}
+        🚚 На заказе
+      {% else %}
+        ✅ Свободен
+      {% endif %}
+    </li>
   {% endfor %}
 </ul>
-
-<h2>Геолокации</h2>
+<h2>Заявки</h2>
 <ul>
-  {% for loc in locations %}
-    <li>{{ loc.driver }}: {{ loc.latitude }}, {{ loc.longitude }} ({{ loc.timestamp }})</li>
+  {% for order in orders %}
+    <li>
+      {{ order.from_address }} → {{ order.to_address }} | {{ order.status }}
+      {% if order.status == "in_progress" %}
+        <a href="{% url 'order_map' order.id %}">Посмотреть маршрут</a>
+      {% endif %}
+    </li>
   {% endfor %}
 </ul>
 {% endblock %}
