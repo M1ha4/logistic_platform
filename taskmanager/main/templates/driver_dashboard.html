@@ -1,32 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Личный кабинет водителя</h2>
+<h2>🚚 Личный кабинет водителя</h2>
 
 {% if no_driver %}
-<p>У вас нет профиля водителя. Обратитесь к администратору.</p>
+  <div class="alert alert-warning">
+    У вас нет профиля водителя. Обратитесь к администратору.
+  </div>
 {% else %}
   {% if not active_order %}
-    <p><b>Нет заказов</b></p>
+    <div class="alert alert-info">
+      <b>Нет заказов</b>
+    </div>
   {% else %}
-    <h3>Заказ #{{ active_order.id }}</h3>
-    <p>Откуда: {{ active_order.from_address }} → Куда: {{ active_order.to_address }}</p>
+    <div class="order-card">
+      <h3>Заказ #{{ active_order.id }}</h3>
+      <p><strong>Откуда:</strong> {{ active_order.from_address }}</p>
+      <p><strong>Куда:</strong> {{ active_order.to_address }}</p>
+    </div>
 
-    <form method="post">
+    <!-- Кнопка поделиться геопозицией -->
+    <form method="post" class="action-form">
       {% csrf_token %}
       <input type="hidden" name="lat" id="lat">
       <input type="hidden" name="lng" id="lng">
-      <button type="submit" name="share_location">📍 Поделиться геопозицией</button>
+      <button type="submit" name="share_location" class="btn btn-location">📍 Поделиться геопозицией</button>
     </form>
 
-    <form method="post" enctype="multipart/form-data">
+    <!-- Кнопка загрузки документа -->
+    <form method="post" enctype="multipart/form-data" class="action-form">
       {% csrf_token %}
-      <input type="file" name="document" required>
-      <button type="submit" name="upload_doc">📎 Загрузить документ</button>
+      <label class="file-label">
+        📎 Загрузить документ
+        <input type="file" name="document" required hidden>
+      </label>
+      <button type="submit" name="upload_doc" class="btn btn-upload">Отправить</button>
     </form>
 
-    <form method="post">
+    <!-- Кнопка завершения заказа -->
+    <form method="post" class="action-form">
       {% csrf_token %}
-      <button type="submit" name="finish_order" onclick="return confirm('Завершить заказ?');">✅ Завершить заказ</button>
+      <button type="submit" name="finish_order" class="btn btn-finish"
+        onclick="return confirm('Завершить заказ?');">✅ Завершить заказ</button>
     </form>
   {% endif %}
 {% endif %}

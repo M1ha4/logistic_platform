@@ -1,16 +1,83 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-<h2>Заявки</h2>
-<ul>
-  {% for order in orders %}
-    <li>{{ order.from_address }} → {{ order.to_address }} | {{ order.status }}</li>
-  {% endfor %}
-</ul>
+<h2>Панель менеджера</h2>
 
-<h3>Создать заявку</h3>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Создать</button>
-</form>
+<!-- Водители -->
+<section>
+  <h3>Водители</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Имя</th>
+        <th>Телефон</th>
+        <th>Статус</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for driver in drivers %}
+      <tr>
+        <td>{{ driver.user.username }}</td>
+        <td>{{ driver.phone }}</td>
+        <td>
+          {% if driver.is_busy %}
+            <span style="color:#d9534f; font-weight:600;">🚚 На заказе</span>
+          {% else %}
+            <span style="color:#28a745; font-weight:600;">✅ Свободен</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="3">Нет водителей</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<!-- Заявки -->
+<section>
+  <h3>Заявки</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Откуда</th>
+        <th>Куда</th>
+        <th>Водитель</th>
+        <th>Статус</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>#{{ order.id }}</td>
+        <td>{{ order.from_address }}</td>
+        <td>{{ order.to_address }}</td>
+        <td>{% if order.driver %}{{ order.driver.user.username }}{% else %}-{% endif %}</td>
+        <td>
+          {% if order.status == "new" %}
+            <span style="color:#007bff; font-weight:600;">Новая</span>
+          {% elif order.status == "in_progress" %}
+            <span style="color:#d9534f; font-weight:600;">В работе</span>
+          {% else %}
+            <span style="color:#28a745; font-weight:600;">Завершена</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5">Заявок нет</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<!-- Создание заявки -->
+<section>
+  <h3>Создать заявку</h3>
+  <form method="post" class="form-card">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Создать</button>
+  </form>
+</section>
 {% endblock %}

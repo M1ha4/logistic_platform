@@ -15,6 +15,7 @@ class DriverProfile(models.Model):
 
 
 
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ("new", "Новая"),
@@ -28,7 +29,7 @@ class Order(models.Model):
     from_address = models.CharField(max_length=255)
     to_address = models.CharField(max_length=255)
     cargo = models.TextField()
-    date = models.DateTimeField()
+    date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
 
     from_lat = models.FloatField(null=True, blank=True)

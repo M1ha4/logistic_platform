@@ -13,21 +13,48 @@ from .models import DriverProfile, DriverLocation
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
+from django.contrib.auth.views import LoginView
+from django.urls import reverse
+
+class RoleBasedLoginView(LoginView):
+    template_name = "login.html"
+
+    def get_success_url(self):
+        user = self.request.user
+
+        # Админ → админская панель
+        if user.is_superuser or user.is_staff:
+            return reverse("admin_dashboard")
+
+        # Водитель → проверим есть ли DriverProfile
+        if hasattr(user, "driverprofile"):
+            return reverse("driver_dashboard")
+
+        # Менеджер → для примера дадим отдельную страницу
+        return reverse("manager_dashboard")
+
+
 
 @login_required
 def manager_dashboard(request):
-    orders = Order.objects.all()
+    orders = Order.objects.all().order_by("-date")
+    drivers = DriverProfile.objects.all()
+
     if request.method == "POST":
         form = OrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
-            order.manager = request.user
-            order.status = "assigned"
+            order.manager = request.user  # <-- менеджер назначается автоматически
             order.save()
             return redirect("manager_dashboard")
     else:
         form = OrderForm()
-    return render(request, "manager_dashboard.html", {"orders": orders, "form": form})
+
+    return render(request, "manager_dashboard.html", {
+        "orders": orders,
+        "drivers": drivers,
+        "form": form,
+    })
 
 
 @login_required
