@@ -190,3 +190,73 @@ label {
 .file-label:hover {
     background: #e0e0e0;
 }
+
+
+
+/* Общие секции */
+.admin-section {
+    margin: 20px 0;
+}
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* Общий стиль карточек */
+.card {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 15px 20px;
+    width: 250px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Статусы */
+.status {
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.status.free {
+    color: #28a745;
+}
+
+.status.busy {
+    color: #d9534f;
+}
+
+.status.new {
+    color: #007bff;
+}
+
+.status.completed {
+    color: #28a745;
+}
+
+/* Кнопка посмотреть маршрут */
+.btn-map {
+    display: inline-block;
+    margin-top: 5px;
+    background: #17a2b8;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.2s ease;
+}
+
+.btn-map:hover {
+    background: #117a8b;
+}

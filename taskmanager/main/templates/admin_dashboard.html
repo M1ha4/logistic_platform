@@ -1,27 +1,55 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Водители</h2>
-<ul>
-  {% for driver in drivers %}
-    <li>
-      {{ driver.user.username }} —
-      {% if driver.is_busy %}
-        🚚 На заказе
-      {% else %}
-        ✅ Свободен
-      {% endif %}
-    </li>
-  {% endfor %}
-</ul>
-<h2>Заявки</h2>
-<ul>
-  {% for order in orders %}
-    <li>
-      {{ order.from_address }} → {{ order.to_address }} | {{ order.status }}
-      {% if order.status == "in_progress" %}
-        <a href="{% url 'order_map' order.id %}">Посмотреть маршрут</a>
-      {% endif %}
-    </li>
-  {% endfor %}
-</ul>
+<h2>Панель администратора</h2>
+
+<!-- Водители -->
+<section class="admin-section">
+  <h3>Водители</h3>
+  <div class="cards-container">
+    {% for driver in drivers %}
+      <div class="card driver-card">
+        <h4>{{ driver.user.username }}</h4>
+        <p>Телефон: {{ driver.phone }}</p>
+        <p>
+          Статус:
+          {% if driver.is_busy %}
+            <span class="status busy">🚚 На заказе</span>
+          {% else %}
+            <span class="status free">✅ Свободен</span>
+          {% endif %}
+        </p>
+      </div>
+    {% empty %}
+      <p>Нет водителей</p>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Заявки -->
+<section class="admin-section">
+  <h3>Заявки</h3>
+  <div class="cards-container">
+    {% for order in orders %}
+      <div class="card order-card">
+        <h4>Заказ #{{ order.id }}</h4>
+        <p><strong>Откуда:</strong> {{ order.from_address }}</p>
+        <p><strong>Куда:</strong> {{ order.to_address }}</p>
+        <p><strong>Водитель:</strong> {% if order.driver %}{{ order.driver.user.username }}{% else %}-{% endif %}</p>
+        <p>
+          <strong>Статус:</strong>
+          {% if order.status == "new" %}
+            <span class="status new">Новая</span>
+          {% elif order.status == "in_progress" %}
+            <span class="status busy">В работе</span>
+            <a href="{% url 'order_map' order.id %}" class="btn btn-map">Посмотреть маршрут</a>
+          {% else %}
+            <span class="status completed">Завершена</span>
+          {% endif %}
+        </p>
+      </div>
+    {% empty %}
+      <p>Заявок нет</p>
+    {% endfor %}
+  </div>
+</section>
 {% endblock %}
